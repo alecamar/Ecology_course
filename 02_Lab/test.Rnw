@@ -1,0 +1,19 @@
+\documentclass{article}
+
+\begin{document}
+
+1. (10 points) Plot the abundance of female grizzly bears through time. Use open circles as your 
+symbol on the plot and connect the symbols with a line. Remember to label your axes and include 
+a figure caption. Hint: look up the plot, points, and lines functions. 
+Describe in words the trends in abundance 1959-≠‚Äê1978.
+
+```{r}
+gri<--read.table("Grizzly.csv", header=TRUE, sep=",")
+gri<-gri*(-1)
+names(gri)
+plot(gri$year, gri$N, xlab="Years", ylab="Female Population Size")
+title("Abundance of female grizzly bears 1959-1978")
+lines(gri$year, gri$N)
+```
+
+\end{document}

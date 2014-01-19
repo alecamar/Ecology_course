@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Alexandre Camargo Martensen</title>
+
+
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<p>Assignment 2 - Grizzly Bear Population Viability Analysis</p>
+
+<h1>Alexandre Camargo Martensen</h1>
+
+<h4>1. (10 points) Plot the abundance of female grizzly bears through time. Use open circles as your symbol on the plot and connect the symbols with a line. Remember to label your axes and include a figure caption. Hint: look up the plot, points, and lines functions. Describe in words the trends in abundance 1959-1978.</h4>
+
+<pre><code class="r">gri &lt;- -read.table(&quot;Grizzly.csv&quot;, header = TRUE, sep = &quot;,&quot;)
+gri &lt;- gri * (-1)
+names(gri)
+</code></pre>
+
+<pre><code>## [1] &quot;year&quot; &quot;N&quot;
+</code></pre>
+
+<pre><code class="r">plot(gri$year, gri$N, xlab = &quot;Years&quot;, ylab = &quot;Female Population Size&quot;)
+title(&quot;Abundance of female grizzly bears 1959-1978&quot;)
+lines(gri$year, gri$N)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-1.png" alt="plot of chunk unnamed-chunk-1"> </p>
+
+<p>Figure 1: Abundance of female grizzly bears between 1959 and 1978 in Yelowstone</p>
+
+<p>There is a general decreasing trend in female abundance between 1959 and 1978, altought with some variation (Figure 1). Nevertheless, there is a decrease of more than 10 females in this 20 years period. </p>
+
+<h4>2. (10 points) Calculate the timeseries of annual population growth rates, rt=ln(Nt/Nt-1) for  Yellowstone grizzly bears. What is the mean population growth rate (approximate 95% Confidence  Intervals) for the period 1959 to 1978?</h4>
+
+<pre><code class="r">rt.tot &lt;- NULL
+for (i in 2:length(gri$N)) {
+    rt = log(gri$N[i]/gri$N[i - 1])
+    rt.tot &lt;- c(rt.tot, rt)
+    i &lt;- i + 1
+}
+rt.tot
+</code></pre>
+
+<pre><code>##  [1]  0.06596 -0.02151 -0.04445  0.04445 -0.02198  0.02198 -0.13976
+##  [8] -0.02532  0.00000  0.07411 -0.07411  0.05001 -0.02469 -0.19237
+## [15]  0.08701 -0.05716  0.13720 -0.10821 -0.02899
+</code></pre>
+
+<pre><code class="r">m &lt;- mean(rt.tot)
+</code></pre>
+
+<pre><code class="r">s &lt;- sd(rt.tot)
+n &lt;- length(gri$N)
+hist(rt.tot)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-3.png" alt="plot of chunk unnamed-chunk-3"> </p>
+
+<p>Figure 2: The histogram of the values of growth rate</p>
+
+<pre><code class="r">q &lt;- quantile(rt.tot, probs = c(0.025, 0.975))
+</code></pre>
+
+<pre><code class="r">plot(density(rt.tot), xlab = &quot;r&#39;s&quot;, ylab = &quot;&quot;, main = &quot;Mean population growth rate between 1959 and 1978&quot;)
+abline(v = m, col = &quot;red&quot;)
+abline(v = q[1], col = &quot;blue&quot;)
+abline(v = q[2], col = &quot;blue&quot;)
+text(0.01, 0.9, &quot;Mean - red&quot;)
+text(0.1, 0.5, &quot;CI - blue&quot;)
+text(-0.16, 0.5, &quot;CI - blue&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-5.png" alt="plot of chunk unnamed-chunk-5"> </p>
+
+<p>Figure 3: Distribution of the population growth rate, its mean (red), and its 95% Confidence intervales.</p>
+
+<h4>3. (15 points) A simple deterministic model for grizzly bear population dynamics is Nt+1=Nt*exp(r ), where r is the average population growth rate. Show (with equations, not simulations) how this model can be obtained from our calculation of the population growth rate. Using the mean population growth rate r, simulate the model for 50 years using an initial population size of 44. What is the final population size? Do it again and determine how long it will take the population to decline to 10 bears. Include a plot of the simulation.</h4>
+
+<p>A population in time t+1 could be defined as:</p>
+
+<pre><code>            Nt+1 = Nt + B - D + I - E             Equation 1
+</code></pre>
+
+<p>Where: N is population size, t is the time step, B is births, D is deaths, I immigration, and E emmigration. </p>
+
+<p>So, in this equation, we are saying that the population in t+1, is equal to the population in time t, plus the births, and the immigration, less the deaths and the emmigrations. </p>
+
+<p>So, the rate of change of the population, could be defined by:</p>
+
+<pre><code>        Nt+1 - Nt = Nt - Nt + B - D + I - E       Equation 2
+
+
+             Delta_N = B - D + I - E              Equation 3
+</code></pre>
+
+<p>If we assume a closed population, we can assume that I and E are not considered, thus we have:</p>
+
+<pre><code>                  Delta_N = B - D                 Equation 4
+</code></pre>
+
+<p>Considering population growth a continuous variable, which means that time (t) is infinitely small, we can describe population growth as a curve, and thus, as differential equation (dN/dt).</p>
+
+<p>The differential equation in this case (dN/dt) refers to the difference in population size (dN) measured in a very small time interval (dt). And in this case, to any time step t, the population growth is given by the slope of the tangent line in time step t (Figure 4, 5a and b).</p>
+
+<pre><code class="r">plot(gri$year, gri$N, xlab = &quot;Years&quot;, ylab = &quot;Female Population Size&quot;)
+title(&quot;Abundance of female grizzly bears 1959-1978&quot;)
+lines(spline(gri$year, gri$N))
+x &lt;- c(41, 1968)
+y &lt;- c(1969, 43)
+lines(x, y, col = &quot;red&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-6.png" alt="plot of chunk unnamed-chunk-6"> </p>
+
+<p>Figure 4: How the tanget line represents the instantaneous growth rate.</p>
+
+<pre><code class="r">par(mfrow = c(1, 2))
+plot(gri$year, gri$N, xlab = &quot;Years&quot;, ylab = &quot;Female Population Size&quot;, xlim = c(1964.5, 
+    1966), ylim = c(42, 47), type = &quot;n&quot;, xaxt = &quot;n&quot;)
+title(&quot;Zoom in in the abundance graph&quot;)
+lines(spline(gri$year, gri$N), lwd = 3)
+axis(1, label = 1964, 1964)
+axis(1, label = 1965, 1965)
+axis(1, label = 1966, 1966)
+axis(2)
+x &lt;- c(80, 1968)
+y &lt;- c(1969, 43)
+lines(x, y, col = &quot;red&quot;, lwd = 5)
+
+curve(sin, -2 * pi, 2 * pi, xlim = c(-4.8, -3.8), ylim = c(0.5, 1.15), xaxt = &quot;n&quot;, 
+    yaxt = &quot;n&quot;, xlab = &quot;Time&quot;, ylab = &quot;Number of Females&quot;)
+title(&quot;Example of the slope of the tangent&quot;)
+xs1 &lt;- c(-4.8, -4.2)
+ys1 &lt;- c(1.05, 0.9)
+lines(xs1, ys1, col = &quot;red&quot;, lwd = 3)
+
+xs2 &lt;- c(-4.55, -4.55)
+ys2 &lt;- c(0.985, 0.93)
+
+xs3 &lt;- c(-4.36, -4.6)
+ys3 &lt;- c(0.94, 0.94)
+
+lines(xs2, ys2, lty = 3)
+lines(xs3, ys3, lty = 3)
+
+text(-4.6, 0.965, expression(paste(Delta, &quot;N&quot;)))
+text(-4.45, 0.9, expression(paste(Delta, &quot;t&quot;)))
+text(-4.45, 1, &quot;dN/dt&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-7.png" alt="plot of chunk unnamed-chunk-7"> </p>
+
+<p>Figure 5: a. A detail of how the tanget line represents the instantaneous growth rate; b: A graphical representation of the calculations.</p>
+
+<p>So, the population growth rate, which is a measure of the changes in population size (dN), is measured in a very small time interval (dt), and in closed populations, is a function of the births (B) and the deaths (D), as shown in he equation above (Equation 4).</p>
+
+<p>Since birth rates and death rates are both functions of population size, thus we have:</p>
+
+<pre><code>                      B = bN  and D = dN        Equation 5 and 6
+
+Where b is instantaneous (i.e. the very short time step mentioned above) per capita birth rate, and d is instantaneous per capita death rate.
+</code></pre>
+
+<p>Thus, getting back to equation 4, we have:</p>
+
+<pre><code>                      dN/dt = (b - d) * N       Equation 7
+</code></pre>
+
+<p>So, the difference between births and deaths, multiplied by the population size in time 0, in closed populations, gives the population growth rate in time 1.</p>
+
+<p>So, as (b - d) = r, we can get to the following equation:</p>
+
+<pre><code>                      dN/dt = r * N             Equation 8
+</code></pre>
+
+<p>Thus, when b &gt; d, r &gt; 0, and the population increase in size, since the population growth rate is positive (r &gt; 0). From another side, when b &lt; d, r &lt; 0 (negative population growth rate), and thus, population decrease in size. Finally, when b = d, r = 0, thus, population growth rate is zero, and population size stills the same.</p>
+
+<p>Integrating the equation 8 (For more information in how to integrate the differential equation above: <a href="http://www.ugrad.math.ubc.ca/coursedoc/math101/notes/moreApps/separable.html">http://www.ugrad.math.ubc.ca/coursedoc/math101/notes/moreApps/separable.html</a>), and we reach an equation that projects future population size:</p>
+
+<pre><code>                      Nt+1=Nt*exp(r)            Equation 9
+</code></pre>
+
+<p>Simulations:</p>
+
+<pre><code class="r">m &lt;- mean(rt.tot)
+r &lt;- m
+
+ini.pop &lt;- 44
+res &lt;- 44
+
+for (yr in 2:50) {
+    pop &lt;- ini.pop * (exp(r))
+    ini.pop &lt;- pop
+    res &lt;- c(res, pop)
+}
+
+res[50]
+</code></pre>
+
+<pre><code>## [1] 22.63
+</code></pre>
+
+<pre><code class="r">round(res[50])
+</code></pre>
+
+<pre><code>## [1] 23
+</code></pre>
+
+<p>The population size in the 50th year is 22.62967 , and the rounded population size is 23.</p>
+
+<pre><code class="r">par(mfrow = c(1, 2))
+plot(res, xlab = &quot;Years&quot;, ylab = &quot;Number of individuals&quot;)
+title(&quot;Results of the simulations of the # of individuals&quot;)
+
+plot(round(res), xlab = &quot;Years&quot;, ylab = &quot;Round number of individuals&quot;, sub = &quot;Rounded since we don&#39;t have half individuals&quot;)
+title(&quot;Rounded results of the simulations&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-9.png" alt="plot of chunk unnamed-chunk-9"> </p>
+
+<p>Figure 5: Results of the simulations of the number of individuals in the 50th time step. a. The results of the equation, and b. the rounded values.</p>
+
+<pre><code class="r">ini.pop &lt;- 44
+ini.pop.c &lt;- 44
+res &lt;- 44
+
+while (ini.pop.c &gt;= 10) {
+    pop &lt;- ini.pop * (exp(r))
+    ini.pop &lt;- pop
+    ini.pop.c &lt;- round(pop)
+    res &lt;- c(res, pop)
+}
+
+length(res)
+</code></pre>
+
+<pre><code>## [1] 114
+</code></pre>
+
+<pre><code class="r">res
+</code></pre>
+
+<pre><code>##   [1] 44.000 43.407 42.822 42.245 41.675 41.114 40.559 40.013 39.474 38.941
+##  [11] 38.417 37.899 37.388 36.884 36.387 35.897 35.413 34.935 34.465 34.000
+##  [21] 33.542 33.090 32.644 32.204 31.770 31.341 30.919 30.502 30.091 29.686
+##  [31] 29.285 28.891 28.501 28.117 27.738 27.364 26.996 26.632 26.273 25.919
+##  [41] 25.569 25.225 24.885 24.549 24.218 23.892 23.570 23.252 22.939 22.630
+##  [51] 22.325 22.024 21.727 21.434 21.145 20.860 20.579 20.302 20.028 19.758
+##  [61] 19.492 19.229 18.970 18.714 18.462 18.213 17.968 17.725 17.487 17.251
+##  [71] 17.018 16.789 16.563 16.339 16.119 15.902 15.688 15.476 15.268 15.062
+##  [81] 14.859 14.659 14.461 14.266 14.074 13.884 13.697 13.512 13.330 13.151
+##  [91] 12.973 12.798 12.626 12.456 12.288 12.122 11.959 11.798 11.639 11.482
+## [101] 11.327 11.174 11.024 10.875 10.729 10.584 10.441 10.301 10.162 10.025
+## [111]  9.890  9.756  9.625  9.495
+</code></pre>
+
+<pre><code class="r">res.f &lt;- cbind(1:length(res), res)
+</code></pre>
+
+<p>The number of years that will take to the population to decline to 10 bears is higher than 100 years, and it varies according to how do you round the number of bears. With 104 years the estimated bear population is 10.875195, and if you use floor (&quot;round down&quot;),  the population is already 10 bears. For 110 years the estimated population size is 10.024827 bears, and with 111 years the number of bears is 9.889710, and with 114 years it is 9.495186 bears. So, depending of how do you round the number of bears, the population could reach 10 individuals qith 104 years or 114 years. </p>
+
+<pre><code class="r">plot(res, main = &quot;Estimated number of bears&quot;, xlab = &quot;Years&quot;, ylab = &quot;Number of bears&quot;)
+abline(h = 10, col = &quot;red&quot;)
+abline(v = 104, col = &quot;blue&quot;)
+abline(v = 114, col = &quot;purple&quot;)
+text(25, 13, &quot;10 individuals limit&quot;, col = &quot;red&quot;)
+text(90, 40, &quot;104 years&quot;, col = &quot;blue&quot;)
+text(100, 30, &quot;114 years&quot;, col = &quot;purple&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-11.png" alt="plot of chunk unnamed-chunk-11"> </p>
+
+<p>Figure 6: Estimated number of bears thru years, showing in detail the years that the population will reach the 10 individuals. </p>
+
+<h4>4. (15 points) A simple stochastic population model (via parametric bootstrap) for grizzly bear population dynamics is Nt+1 = Nt exp(rt), where rt is a single annual observation of the population growth rate drawn randomly (with replacement) from the set of annual population growth rates we calculated in (2). Conduct a stochastic simulation of the model over 50 years with initial population size of 44 bears using the rt estimates for the time period 1959 to 1978. The Include a plot of the simulation.</h4>
+
+<pre><code class="r">ini.pop &lt;- 44
+res.1 &lt;- 44
+
+for (yr in 2:50) {
+    pop &lt;- ini.pop * (exp(sample(rt.tot, 1, replace = TRUE)))
+    ini.pop &lt;- pop
+    res.1 &lt;- c(res.1, pop)
+}
+
+res.1[50]
+</code></pre>
+
+<pre><code>## [1] 29.45
+</code></pre>
+
+<pre><code class="r">round(res.1[50])
+</code></pre>
+
+<pre><code>## [1] 29
+</code></pre>
+
+<pre><code class="r">plot(res.1, main = &quot;Estimated number of bears with stochastic simulation&quot;, xlab = &quot;Years&quot;, 
+    ylab = &quot;Number of bears&quot;)
+abline(h = res.1[50])
+lines(spline(res.1))
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-13.png" alt="plot of chunk unnamed-chunk-13"> </p>
+
+<h4>5. (15 points) Suppose we set 10 bears as a critical minimum population size. We are interested in estimating the probability that the population will drop below this threshold over a time period of 50 years. Using the rt estimates for the time period 1959 to 1978 and an initial population size of 44, estimate this probability by conducting 1000 stochastic simulations of the model in 4 and counting the number of simulations where the population size dips below 10. Hint: you will need to use the ‘for’ and ‘if’ commands.</h4>
+
+<pre><code class="r">gr &lt;- NULL
+for (sim in 1:1000) {
+    ini.pop &lt;- 44
+    res.2 &lt;- 44
+    for (yr in 2:50) {
+        pop &lt;- ini.pop * (exp(sample(rt.tot, 1, replace = TRUE)))
+        ini.pop &lt;- pop
+        res.2 &lt;- c(res.2, pop)
+        if (which.min(res.2) &lt; 10) 
+            b &lt;- &quot;below&quot;
+        if (which.min(res.2) &gt; 10) 
+            b &lt;- &quot;above&quot;
+    }
+    gr &lt;- c(gr, b)
+}
+table(gr)
+</code></pre>
+
+<pre><code>## gr
+## above below 
+##   925    75
+</code></pre>
+
+<h4>6. (15  points)  For   the sets    of  1000    simulations above,  calculate   the average final    population size    and the 95% confidence intervals    on  this    estimate    (Hint:  the 2.5   and   97.5    percentiles of  the distribution    of  final   population  sizes   – look up the function    quantile).</h4>
+
+<pre><code class="r">fin.t &lt;- NULL
+for (sim in 1:1000) {
+    ini.pop &lt;- 44
+    res.3 &lt;- 44
+    for (yr in 2:50) {
+        pop &lt;- ini.pop * (exp(sample(rt.tot, 1, replace = TRUE)))
+        ini.pop &lt;- pop
+        res.3 &lt;- c(res.3, pop)
+        fin &lt;- res.3[50]
+    }
+    fin.t &lt;- c(fin.t, fin)
+}
+plot(density(fin.t), main = &quot;Average final population size and the 95% confidence intervals&quot;)
+qf &lt;- quantile(fin.t, probs = c(0.025, 0.975))
+qf
+</code></pre>
+
+<pre><code>##   2.5%  97.5% 
+##  7.391 66.392
+</code></pre>
+
+<pre><code class="r">abline(v = qf[1], col = &quot;red&quot;)
+abline(v = qf[2], col = &quot;red&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-15.png" alt="plot of chunk unnamed-chunk-15"> </p>
+
+<h4>7. (20  points)  Repeat    5   and 6   above   but approximate the distribution    of  rt  with    a    Normal distribution    with    mean    and standard    deviation   estimated   from    the rt  values. That    is, the model   is       Nt+1   =   Nt*exp(r+εt)   where   r   is  the mean    of  the rt  values  and εt is  a   random  Normal  variable    with     mean   zero    and standard    deviation   estimated   from    the rt  values. Hint:   use the function    rnorm.  How do  the results from    the two different   stochastic  models   (7)    versus  (5) compare?</h4>
+
+<h5>7.a</h5>
+
+<pre><code class="r">m &lt;- mean(rt.tot)
+s &lt;- sd(rt.tot)
+# Nt+1 = Nt*exp(r+εt)
+gr.7 &lt;- NULL
+for (sim in 1:1000) {
+    ini.pop &lt;- 44
+    res.7 &lt;- 44
+    for (yr in 2:50) {
+        pop &lt;- ini.pop * (exp(m + rnorm(1, mean = 0, sd = s)))
+        ini.pop &lt;- pop
+        res.7 &lt;- c(res.7, pop)
+        if (which.min(res.7) &lt; 10) 
+            b &lt;- &quot;below&quot;
+        if (which.min(res.7) &gt; 10) 
+            b &lt;- &quot;above&quot;
+    }
+    gr.7 &lt;- c(gr.7, b)
+}
+table(gr.7)
+</code></pre>
+
+<pre><code>## gr.7
+## above below 
+##   922    78
+</code></pre>
+
+<pre><code class="r">
+comp &lt;- data.frame(cbind(t(t(table(gr))), t(t(table(gr.7)))))
+
+names(comp) &lt;- c(&quot;ex.5&quot;, &quot;ex.7&quot;)
+comp.f &lt;- t(comp)
+comp.f
+</code></pre>
+
+<pre><code>##      above below
+## ex.5   925    75
+## ex.7   922    78
+</code></pre>
+
+<pre><code class="r">comp.m &lt;- as.matrix(comp.f)
+ch.1 &lt;- chisq.test(comp.m, simulate.p.value = TRUE, B = 2000)
+ch.1
+</code></pre>
+
+<pre><code>## 
+##  Pearson&#39;s Chi-squared test with simulated p-value (based on 2000
+##  replicates)
+## 
+## data:  comp.m
+## X-squared = 0.0637, df = NA, p-value = 0.8781
+</code></pre>
+
+<pre><code class="r">
+if (ch.1$p.value &lt; 0.05) RR.7a &lt;- (&quot;They are different&quot;)
+if (ch.1$p.value &gt; 0.05) RR.7a &lt;- (&quot;They are equal, both distributions generate similar results&quot;)
+
+RR.7a
+</code></pre>
+
+<pre><code>## [1] &quot;They are equal, both distributions generate similar results&quot;
+</code></pre>
+
+<h5>7.b</h5>
+
+<pre><code class="r">fin.t.7b &lt;- NULL
+for (sim in 1:1000) {
+    ini.pop &lt;- 44
+    res.7b &lt;- 44
+    for (yr in 2:50) {
+        pop &lt;- ini.pop * (exp(m + rnorm(1, mean = 0, sd = s)))
+        ini.pop &lt;- pop
+        res.7b &lt;- c(res.7b, pop)
+        fin.7b &lt;- res.7b[50]
+    }
+    fin.t.7b &lt;- c(fin.t.7b, fin.7b)
+}
+
+fin.t.df &lt;- data.frame(fin.t)
+fin.t.7b.df &lt;- data.frame(fin.t.7b)
+fin.F &lt;- cbind(fin.t.df, fin.t.7b.df)
+names(fin.F) &lt;- c(&quot;ex.6&quot;, &quot;ex.7&quot;)
+head(fin.F)
+</code></pre>
+
+<pre><code>##    ex.6  ex.7
+## 1 50.82 13.95
+## 2 27.98 16.82
+## 3 19.85 76.61
+## 4 50.17 38.40
+## 5 29.08 52.48
+## 6 28.71 13.94
+</code></pre>
+
+<pre><code class="r">tt &lt;- t.test(fin.t.df, fin.t.7b.df)
+
+
+
+if (tt$p.value &lt; 0.05) RR.7b &lt;- (&quot;They are different&quot;)
+if (tt$p.value &gt; 0.05) RR.7b &lt;- (&quot;They are equal, both distributions generate similar results&quot;)
+RR.7b
+</code></pre>
+
+<pre><code>## [1] &quot;They are equal, both distributions generate similar results&quot;
+</code></pre>
+
+<h5>How do the results from the two different stochastic models (7) versus (5) compare?</h5>
+
+</body>
+
+</html>
